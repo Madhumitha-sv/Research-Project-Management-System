@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Project Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="catalog-rail">
+        <div class="rail-brand">
+            <span class="mark">RP</span>
+            <span class="name">Intellecta<small>Lab &amp; Project Tracker</small></span>
+        </div>
+        <div class="rail-tabs">
+            <a href="{{ url_for('dashboard') }}" class="rail-tab active">Dashboard</a>
+            <a class="rail-tab disabled">Projects<span class="soon">Soon</span></a>
+            <a class="rail-tab disabled">Tasks<span class="soon">Soon</span></a>
+            <a class="rail-tab disabled">Team<span class="soon">Soon</span></a>
+            <a class="rail-tab disabled">Settings<span class="soon">Soon</span></a>
+        </div>
+        <div class="rail-user">
+            <div>
+                <div class="u-name">{{ session['user']['full_name'] }}</div>
+                <div class="u-role">{{ session['user']['role'] }}</div>
+            </div>
+            <span class="avatar">{{ session['user']['full_name'][0] }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

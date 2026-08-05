@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-eyebrow">Overview</div>
+<h1>Dashboard</h1>
+<p>Welcome back, <strong>{{ user['full_name'] }}</strong> — signed in as {{ user['role'] }}</p>
+<hr>
+
+{% if user['role'] == 'Admin' %}
+
+    <div class="metrics">
+        <div class="metric-card">
+            <span class="metric-value">{{ users|length }}</span>
+            <span class="metric-label">Total Users</span>
+        </div>
+        <div class="metric-card acc-moss">
+            <span class="metric-value">0</span>
+            <span class="metric-label">Total Projects</span>
+        </div>
+        <div class="metric-card acc-amber">
+            <span class="metric-value">0</span>
+            <span class="metric-label">Active Tasks</span>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <span class="panel-title">Registered Users</span>
+            <span class="count">{{ users|length }} total</span>
+        </div>
+        <table class="data-table">
+            <tr><th>ID</th><th>User</th><th>Role</th><th>Email</th></tr>
+            {% for u in users %}
+            <tr class="role-{{ u['role']|lower }}">
+                <td class="mono">#{{ '%03d'|format(u['user_id']) }}</td>
+                <td>
+                    <div class="cell-user">
+                        <span class="mini-avatar">{{ u['full_name'][0] }}</span>
+                        <span class="u-name">{{ u['full_name'] }} <span class="u-email">@{{ u['username'] }}</span></span>
+                    </div>
+                </td>
+                <td>
+                    {% if u['role'] == 'Admin' %}
+                        <span class="pill pill-admin">Admin</span>
+                    {% elif u['role'] == 'Faculty' %}
+                        <span class="pill pill-faculty">Faculty</span>
+                    {% else %}
+                        <span class="pill pill-student">Student</span>
+                    {% endif %}
+                </td>
+                <td class="mono">{{ u['email'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% elif user['role'] == 'Faculty' %}
+
+    <div class="metrics">
+        <div class="metric-card"><span class="metric-value">0</span><span class="metric-label">My Projects</span></div>
+        <div class="metric-card acc-amber"><span class="metric-value">0</span><span class="metric-label">Pending Tasks</span></div>
+        <div class="metric-card acc-moss"><span class="metric-value">0</span><span class="metric-label">Team Members</span></div>
+    </div>
+
+    <div class="panel">
+        <div class="empty-state">
+            <div class="stamp">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <h3>No projects yet</h3>
+            <p>Your projects and tasks will appear here once Module 2 (Project Management) is added.</p>
+        </div>
+    </div>
+
+{% else %}
+
+    <div class="metrics">
+        <div class="metric-card"><span class="metric-value">0</span><span class="metric-label">Assigned Tasks</span></div>
+        <div class="metric-card acc-moss"><span class="metric-value">0</span><span class="metric-label">Completed</span></div>
+        <div class="metric-card acc-amber"><span class="metric-value">0</span><span class="metric-label">Upcoming Deadlines</span></div>
+    </div>
+
+    <div class="panel">
+        <div class="empty-state">
+            <div class="stamp">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <h3>Nothing assigned yet</h3>
+            <p>Your assigned tasks will appear here once Module 2 (Task Management) is added.</p>
+        </div>
+    </div>
+
+{% endif %}
+
+{% endblock %}
