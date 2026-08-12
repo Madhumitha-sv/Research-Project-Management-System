@@ -8,39 +8,54 @@
 </head>
 <body>
 
-    <nav class="catalog-rail">
-        <div class="rail-brand">
-            <span class="mark">RP</span>
-            <span class="name">Intellecta<small>Lab &amp; Project Tracker</small></span>
-        </div>
-        <div class="rail-tabs">
-            <a href="{{ url_for('dashboard') }}" class="rail-tab active">Dashboard</a>
-            <a class="rail-tab disabled">Projects<span class="soon">Soon</span></a>
-            <a class="rail-tab disabled">Tasks<span class="soon">Soon</span></a>
-            <a class="rail-tab disabled">Team<span class="soon">Soon</span></a>
-            <a class="rail-tab disabled">Settings<span class="soon">Soon</span></a>
-        </div>
-        <div class="rail-user">
-            <div>
-                <div class="u-name">{{ session['user']['full_name'] }}</div>
-                <div class="u-role">{{ session['user']['role'] }}</div>
+    {% if session.get('user') %}
+    <div class="app-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-mark">RP</span>
+                <span class="brand-name">ResearchOps</span>
             </div>
-            <span class="avatar">{{ session['user']['full_name'][0] }}</span>
-            <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
-        </div>
-    </nav>
 
-    <div class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}"
+                   class="nav-item {{ 'is-active' if request.endpoint == 'dashboard' else '' }}">
+                    <span class="nav-icon">⌂</span> Dashboard
+                </a>
+                <a href="{{ url_for('projects') }}"
+                   class="nav-item {{ 'is-active' if request.endpoint in ['projects','project_detail','new_project'] else '' }}">
+                    <span class="nav-icon">▣</span> Projects
+                </a>
+                <a href="{{ url_for('tasks') }}"
+                   class="nav-item {{ 'is-active' if request.endpoint in ['tasks','new_task'] else '' }}">
+                    <span class="nav-icon">☑</span> Tasks
+                </a>
+                <a href="#" class="nav-item is-disabled">
+                    <span class="nav-icon">◎</span> Team <span class="soon-tag">Soon</span>
+                </a>
+                <a href="#" class="nav-item is-disabled">
+                    <span class="nav-icon">⚙</span> Settings <span class="soon-tag">Soon</span>
+                </a>
+            </nav>
 
-        {% block content %}{% endblock %}
-    </div>
+            <div class="sidebar-footer">
+                <div class="user-chip">
+                    <span class="avatar">{{ session['user']['full_name'][0] }}</span>
+                    <div class="user-chip-info">
+                        <span class="user-chip-name">{{ session['user']['full_name'] }}</span>
+                        <span class="role-badge role-{{ session['user']['role']|lower }}">{{ session['user']['role'] }}</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
+            </div>
+        </aside>
 
-</body>
-</html>
+        <div class="main-area">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <span class="eyebrow">Overview</span>
+                    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+            </header>
+
+            <main class="content">

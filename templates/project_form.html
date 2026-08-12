@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block page_title %}New Project{% endblock %}
+{% block content %}
+
+<div class="panel form-panel">
+    <form method="POST" class="stack-form">
+        <label for="title">Project Title</label>
+        <input type="text" id="title" name="title" required autofocus>
+
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4"></textarea>
+
+        <div class="form-row">
+            <div>
+                <label for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date">
+            </div>
+            <div>
+                <label for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('projects') }}" class="btn-ghost">Cancel</a>
+            <button type="submit" class="btn-primary">Create Project</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
