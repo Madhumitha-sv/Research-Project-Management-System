@@ -1,22 +1,61 @@
-{% extends "base.html" %}
+{% extends "base_auth.html" %}
 {% block content %}
 
-<div class="auth-page">
-    <div class="auth-brand-panel">
-        <div class="auth-brand-mark">RP</div>
-        <h2 class="auth-brand-title">ResearchOps</h2>
-        <p class="auth-brand-tagline">Plan, assign, and track research projects — from proposal to publication.</p>
-        <ul class="auth-feature-list">
-            <li>Role-based access for Admins, Faculty &amp; Students</li>
-            <li>Centralized project &amp; task tracking</li>
-            <li>Built for university research teams</li>
-        </ul>
+<div class="auth-shell">
+    <div class="auth-visual">
+        <div class="index-lines"></div>
+
+        <div class="v-brand"><span class="mark">RP</span>Intellecta</div>
+
+        <div class="v-diagram">
+            <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                <path class="diagram-path" d="M32,36 C70,70 20,95 42,138 C64,181 14,206 36,250 C58,294 8,318 30,362" />
+
+                <g class="stage-node">
+                    <circle class="ring" cx="32" cy="36" r="17"/>
+                    <circle class="core" cx="32" cy="36" r="11" fill="#6E7CE0"/>
+                    <text class="num" x="32" y="37">01</text>
+                    <text class="label" x="62" y="32">Proposal</text>
+                    <text class="sub" x="62" y="49">Scope and register the study</text>
+                </g>
+
+                <g class="stage-node">
+                    <circle class="ring" cx="42" cy="138" r="17"/>
+                    <circle class="core" cx="42" cy="138" r="11" fill="#4C7A5B"/>
+                    <text class="num" x="42" y="139">02</text>
+                    <text class="label" x="72" y="134">Data collection</text>
+                    <text class="sub" x="72" y="151">Gather and log findings</text>
+                </g>
+
+                <g class="stage-node">
+                    <circle class="ring" cx="36" cy="250" r="17"/>
+                    <circle class="core" cx="36" cy="250" r="11" fill="#C98A2E"/>
+                    <text class="num" x="36" y="251">03</text>
+                    <text class="label" x="66" y="246">Analysis</text>
+                    <text class="sub" x="66" y="263">Review results with your team</text>
+                </g>
+
+                <g class="stage-node">
+                    <circle class="ring" cx="30" cy="362" r="17"/>
+                    <circle class="core" cx="30" cy="362" r="11" fill="#B54B4B"/>
+                    <text class="num" x="30" y="363">04</text>
+                    <text class="label" x="60" y="358">Publication</text>
+                    <text class="sub" x="60" y="375">Submit and close the record</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="v-copy">
+            <h2>Track every project from proposal to publication.</h2>
+            <p>One workspace for admins, faculty, and students to manage research work — assignments, deadlines, and progress, all in one place.</p>
+        </div>
     </div>
 
     <div class="auth-form-panel">
         <div class="login-box">
+            <div class="form-eyebrow">Sign in</div>
             <h1>Welcome back</h1>
-            <h2>Sign in to your research workspace</h2>
+            <h2>Enter your credentials to access your workspace.</h2>
 
             <form method="POST" action="{{ url_for('login') }}">
                 <label for="username">Username</label>
@@ -25,18 +64,18 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
 
-                <button type="submit">Sign in</button>
+                <button type="submit">Log in</button>
             </form>
 
             <details class="demo-creds">
                 <summary>Demo login credentials (for testing / viva)</summary>
-                <table>
-                    <tr><th>Role</th><th>Username</th><th>Password</th></tr>
-                    <tr><td>Admin</td><td>admin</td><td>admin123</td></tr>
-                    <tr><td>Faculty</td><td>faculty1</td><td>faculty123</td></tr>
-                    <tr><td>Student</td><td>student1</td><td>student123</td></tr>
-                </table>
+                <div class="cred-row"><span class="cred-role">Admin</span><span>admin / admin123</span></div>
+                <div class="cred-row"><span class="cred-role">Faculty</span><span>faculty1 / faculty123</span></div>
+                <div class="cred-row"><span class="cred-role">Student</span><span>student1 / student123</span></div>
             </details>
+
+            <p class="auth-switch">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+            
         </div>
     </div>
 </div>

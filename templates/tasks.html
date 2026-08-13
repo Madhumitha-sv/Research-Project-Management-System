@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block page_title %}Tasks{% endblock %}
+{% block content %}
+
+<div class="panel">
+    <div class="panel-header">
+        <h2>{% if session['user']['role'] == 'Student' %}My Tasks{% else %}Tasks{% endif %}</h2>
+        <span class="count">{{ tasks|length }} total</span>
+    </div>
+    <table class="data-table">
+        <thead><tr><th>Title</th><th>Project</th><th>Assigned To</th><th>Due</th><th>Status</th></tr></thead>
+        <tbody>
+            {% for t in tasks %}
+            <tr>
+                <td>{{ t.title }}</td>
+                <td><a href="{{ url_for('project_detail', project_id=t.project_id) }}">{{ t.project.title }}</a></td>
+                <td>{{ t.assignee.full_name if t.assignee else '—' }}</td>
+                <td>{{ t.due_date or '—' }}</td>
+                <td>
+                    {% if session['user']['role'] == 'Admin'
+                          or t.project.owner_id == session['user']['user_id']
+                          or t.assigned_to == session['user']['user_id'] %}
+                    <form method="POST" action="{{ url_for('update_task_status', task_id=t.task_id) }}" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <label for="task-status-{{ t.task_id }}" class="visually-hidden">Status for {{ t.title }}</label>
+                        <select name="status" id="task-status-{{ t.task_id }}" onchange="this.form.submit()"
+                                class="status-select status-{{ t.status|lower|replace(' ', '-') }}">
+                            {% for s in ['Pending', 'In Progress', 'Completed'] %}
+                            <option value="{{ s }}" {{ 'selected' if t.status == s else '' }}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    {% else %}
+                    <span class="status-badge status-{{ t.status|lower|replace(' ', '-') }}">{{ t.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No tasks yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

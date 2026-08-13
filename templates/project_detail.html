@@ -1,27 +1,28 @@
 {% extends "base.html" %}
-{% block page_title %}{{ project['title'] }}{% endblock %}
+{% block page_title %}{{ project.title }}{% endblock %}
 {% block content %}
 
 <div class="panel">
     <div class="panel-header">
-        <h2>{{ project['title'] }}</h2>
-        <span class="status-badge status-{{ project['status']|lower|replace(' ', '-') }}">{{ project['status'] }}</span>
+        <h2>{{ project.title }}</h2>
+        <span class="status-badge status-{{ project.status|lower|replace(' ', '-') }}">{{ project.status }}</span>
     </div>
 
-    <p class="project-detail-desc">{{ project['description'] or 'No description provided.' }}</p>
+    <p class="project-detail-desc">{{ project.description or 'No description provided.' }}</p>
 
     <div class="project-meta">
-        <span>Owner: {{ project['owner_name'] }}</span>
-        {% if project['start_date'] %}<span>Start: {{ project['start_date'] }}</span>{% endif %}
-        {% if project['end_date'] %}<span>End: {{ project['end_date'] }}</span>{% endif %}
+        <span>Owner: {{ project.owner.full_name }}</span>
+        {% if project.start_date %}<span>Start: {{ project.start_date }}</span>{% endif %}
+        {% if project.end_date %}<span>End: {{ project.end_date }}</span>{% endif %}
     </div>
 
     {% if is_owner %}
-    <form method="POST" action="{{ url_for('update_project_status', project_id=project['project_id']) }}" class="inline-form">
+    <form method="POST" action="{{ url_for('update_project_status', project_id=project.project_id) }}" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="status">Update status</label>
         <select name="status" id="status" onchange="this.form.submit()">
             {% for s in ['Active', 'On Hold', 'Completed'] %}
-            <option value="{{ s }}" {{ 'selected' if project['status'] == s else '' }}>{{ s }}</option>
+            <option value="{{ s }}" {{ 'selected' if project.status == s else '' }}>{{ s }}</option>
             {% endfor %}
         </select>
     </form>
@@ -38,8 +39,8 @@
         <tbody>
             {% for m in members %}
             <tr>
-                <td>{{ m['full_name'] }}</td>
-                <td><span class="role-badge role-{{ m['role']|lower }}">{{ m['role'] }}</span></td>
+                <td>{{ m.full_name }}</td>
+                <td><span class="role-badge role-{{ m.role|lower|replace(' ', '-') }}">{{ m.role }}</span></td>
             </tr>
             {% else %}
             <tr><td colspan="2">No members added yet.</td></tr>
@@ -48,11 +49,12 @@
     </table>
 
     {% if is_owner and available_members %}
-    <form method="POST" action="{{ url_for('add_member', project_id=project['project_id']) }}" class="inline-form">
+    <form method="POST" action="{{ url_for('add_member', project_id=project.project_id) }}" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <select name="user_id" required>
             <option value="" disabled selected>Add a member…</option>
             {% for m in available_members %}
-            <option value="{{ m['user_id'] }}">{{ m['full_name'] }} ({{ m['role'] }})</option>
+            <option value="{{ m.user_id }}">{{ m.full_name }} ({{ m.role }})</option>
             {% endfor %}
         </select>
         <button type="submit" class="btn-secondary">Add</button>
@@ -64,7 +66,7 @@
     <div class="panel-header">
         <h2>Tasks</h2>
         {% if is_owner %}
-        <a href="{{ url_for('new_task', project_id=project['project_id']) }}" class="btn-primary">+ New Task</a>
+        <a href="{{ url_for('new_task', project_id=project.project_id) }}" class="btn-primary">+ New Task</a>
         {% endif %}
     </div>
     <table class="data-table">
@@ -72,21 +74,23 @@
         <tbody>
             {% for t in tasks %}
             <tr>
-                <td>{{ t['title'] }}</td>
-                <td>{{ t['assignee_name'] or '—' }}</td>
-                <td>{{ t['due_date'] or '—' }}</td>
+                <td>{{ t.title }}</td>
+                <td>{{ t.assignee.full_name if t.assignee else '—' }}</td>
+                <td>{{ t.due_date or '—' }}</td>
                 <td>
-                    {% if is_owner or t['assigned_to'] == session['user']['user_id'] %}
-                    <form method="POST" action="{{ url_for('update_task_status', task_id=t['task_id']) }}" class="inline-form">
-                        <select name="status" onchange="this.form.submit()"
-                                class="status-select status-{{ t['status']|lower|replace(' ', '-') }}">
+                    {% if is_owner or t.assigned_to == session['user']['user_id'] %}
+                    <form method="POST" action="{{ url_for('update_task_status', task_id=t.task_id) }}" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <label for="task-status-{{ t.task_id }}" class="visually-hidden">Status for {{ t.title }}</label>
+                        <select name="status" id="task-status-{{ t.task_id }}" onchange="this.form.submit()"
+                                class="status-select status-{{ t.status|lower|replace(' ', '-') }}">
                             {% for s in ['Pending', 'In Progress', 'Completed'] %}
-                            <option value="{{ s }}" {{ 'selected' if t['status'] == s else '' }}>{{ s }}</option>
+                            <option value="{{ s }}" {{ 'selected' if t.status == s else '' }}>{{ s }}</option>
                             {% endfor %}
                         </select>
                     </form>
                     {% else %}
-                    <span class="status-badge status-{{ t['status']|lower|replace(' ', '-') }}">{{ t['status'] }}</span>
+                    <span class="status-badge status-{{ t.status|lower|replace(' ', '-') }}">{{ t.status }}</span>
                     {% endif %}
                 </td>
             </tr>
@@ -98,4 +102,3 @@
 </div>
 
 {% endblock %}
-

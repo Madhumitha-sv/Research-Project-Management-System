@@ -2,43 +2,28 @@
 {% block page_title %}Projects{% endblock %}
 {% block content %}
 
-<div class="panel-toolbar">
-    <p class="welcome-line">{{ projects|length }} project{{ 's' if projects|length != 1 else '' }}</p>
-    {% if session['user']['role'] in ['Admin', 'Faculty'] %}
-    <a href="{{ url_for('new_project') }}" class="btn-primary">+ New Project</a>
-    {% endif %}
-</div>
-
-{% if projects %}
-<div class="card-grid">
-    {% for p in projects %}
-    <a href="{{ url_for('project_detail', project_id=p['project_id']) }}" class="project-card">
-        <div class="project-card-header">
-            <span class="status-badge status-{{ p['status']|lower|replace(' ', '-') }}">{{ p['status'] }}</span>
-        </div>
-        <h3>{{ p['title'] }}</h3>
-        <p class="project-card-desc">{{ p['description'] or 'No description provided.' }}</p>
-        <div class="project-card-footer">
-            <span>{{ p['member_count'] }} member{{ 's' if p['member_count'] != 1 else '' }}</span>
-            <span>Owner: {{ p['owner_name'] }}</span>
-        </div>
-    </a>
-    {% endfor %}
-</div>
-{% else %}
-<div class="panel empty-panel">
-    <div class="empty-state">
-        <span class="empty-icon">▣</span>
-        <h3>No projects yet</h3>
-        <p>
-            {% if session['user']['role'] in ['Admin', 'Faculty'] %}
-                Create your first project to get started.
-            {% else %}
-                You haven't been added to any projects yet.
-            {% endif %}
-        </p>
+<div class="panel">
+    <div class="panel-header">
+        <h2>All Projects</h2>
+        {% if session['user']['role'] in ['Admin', 'Faculty'] %}
+        <a href="{{ url_for('new_project') }}" class="btn-primary">+ New Project</a>
+        {% endif %}
     </div>
+    <table class="data-table">
+        <thead><tr><th>Title</th><th>Owner</th><th>Status</th><th>Members</th></tr></thead>
+        <tbody>
+            {% for p in projects %}
+            <tr>
+                <td><a href="{{ url_for('project_detail', project_id=p.project_id) }}">{{ p.title }}</a></td>
+                <td>{{ p.owner.full_name }}</td>
+                <td><span class="status-badge status-{{ p.status|lower|replace(' ', '-') }}">{{ p.status }}</span></td>
+                <td>{{ p.members|length }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">No projects yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-{% endif %}
 
 {% endblock %}
