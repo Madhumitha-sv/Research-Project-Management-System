@@ -4,9 +4,9 @@
 
 <div class="panel">
     <div class="panel-header">
-        <h2>New task for {{ project['title'] }}</h2>
+        <h2>New task for {{ project.title }}</h2>
     </div>
-    <form method="POST" action="{{ url_for('new_task', project_id=project['project_id']) }}" class="stacked-form">
+    <form method="POST" action="{{ url_for('new_task', project_id=project.project_id) }}" class="stacked-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <label for="title">Title</label>
@@ -19,7 +19,7 @@
         <select id="assigned_to" name="assigned_to">
             <option value="">Unassigned</option>
             {% for m in members %}
-            <option value="{{ m['user_id'] }}">{{ m['full_name'] }} ({{ m['role'] }})</option>
+            <option value="{{ m.user_id }}">{{ m.full_name }} ({{ m.role }})</option>
             {% endfor %}
         </select>
 

@@ -57,3 +57,48 @@ def add_user(username, password, full_name, role, email):
     )
     db.session.add(user)
     db.session.commit()
+
+
+def get_user_by_id(user_id):
+    """Fetch a single user's details — used to pre-fill the edit form."""
+    user = User.query.get(user_id)
+    if user is None:
+        return None
+    return {
+        "user_id": user.user_id,
+        "username": user.username,
+        "full_name": user.full_name,
+        "role": user.role,
+        "email": user.email,
+    }
+
+
+def username_exists_for_other(username: str, exclude_user_id: int) -> bool:
+    """Like username_exists, but ignores the user being edited (so saving
+    their own unchanged username doesn't falsely flag as taken)."""
+    return User.query.filter(
+        User.username == username,
+        User.user_id != exclude_user_id,
+    ).first() is not None
+
+
+def update_user(user_id, username, full_name, role, email, password=None):
+    """Updates a user's details, including username. Password is optional — only changed if provided."""
+    user = User.query.get(user_id)
+    if user is None:
+        return
+    user.username = username
+    user.full_name = full_name
+    user.role = role
+    user.email = email
+    if password:
+        user.password_hash = hash_password(password)
+    db.session.commit()
+
+def delete_user(user_id):
+    """Permanently removes a user."""
+    user = User.query.get(user_id)
+    if user is None:
+        return
+    db.session.delete(user)
+    db.session.commit()

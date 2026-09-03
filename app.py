@@ -1,6 +1,6 @@
 """
 app.py
-Module 1 (Login, Logout, Dashboard) + Module 2 (Projects, Tasks) — Flask + Postgres.
+Module 1 (Login, Logout, Dashboard) + Module 2 (Projects, Tasks, User Management) — Flask + Postgres.
 
 Run with:
     python app.py
@@ -9,13 +9,24 @@ Run with:
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from flask_migrate import Migrate
+from flask_wtf import CSRFProtect 
 
 from models import db, User, Project, Task, project_members
-from database import init_db, username_exists, add_user
 from authentication import authenticate, get_all_users
+from database import (
+    init_db,
+    username_exists,
+    username_exists_for_other,
+    add_user,
+    get_user_by_id,
+    update_user,
+    delete_user,
+)
 
 app = Flask(__name__)
 app.secret_key = "change-this-to-any-random-string"  # Flask needs this to keep sessions secure
+
+csrf = CSRFProtect(app) 
 
 # --- Database configuration ---
 app.config['SQLALCHEMY_DATABASE_URI'] = (
@@ -36,13 +47,25 @@ def seed_db():
 
 
 # ---------------------------------------------------------------------------
-# Auth guard — used by every Module 2 route below
+# Auth guards
 # ---------------------------------------------------------------------------
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if "user" not in session:
             return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return wrapper
+
+
+def admin_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "user" not in session:
+            return redirect(url_for("login"))
+        if session["user"]["role"] != "Admin":
+            flash("You don't have permission to do that.")
+            return redirect(url_for("dashboard"))
         return f(*args, **kwargs)
     return wrapper
 
@@ -383,6 +406,102 @@ def update_task_status(task_id):
     db.session.commit()
     flash('Task status updated.')
     return redirect(request.referrer or url_for('tasks'))
+
+
+# ---------------------------------------------------------------------------
+# /users/add — Admin creates a new user directly
+# ---------------------------------------------------------------------------
+@app.route("/users/add", methods=["GET", "POST"])
+@admin_required
+def add_user_route():
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip()
+        role = request.form.get("role", "").strip()
+        password = request.form.get("password", "")
+
+        if not full_name or not username or not password or not role:
+            flash("Please fill in all required fields.")
+            return render_template("user_form.html", mode="add", form_data=request.form)
+
+        if role not in ("Admin", "Faculty", "Student"):
+            flash("Please select a valid role.")
+            return render_template("user_form.html", mode="add", form_data=request.form)
+
+        if len(password) < 6:
+            flash("Password must be at least 6 characters.")
+            return render_template("user_form.html", mode="add", form_data=request.form)
+
+        if username_exists(username):
+            flash("That username is already taken.")
+            return render_template("user_form.html", mode="add", form_data=request.form)
+
+        add_user(username, password, full_name, role, email)
+        flash(f"User '{username}' created.")
+        return redirect(url_for("dashboard"))
+
+    return render_template("user_form.html", mode="add", form_data={})
+
+
+# ---------------------------------------------------------------------------
+# /users/edit/<id> — Admin updates an existing user
+# ---------------------------------------------------------------------------
+@app.route("/users/edit/<int:user_id>", methods=["GET", "POST"])
+@admin_required
+def edit_user_route(user_id):
+    existing = get_user_by_id(user_id)
+    if existing is None:
+        flash("User not found.")
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip()
+        role = request.form.get("role", "").strip()
+        password = request.form.get("password", "")  # optional on edit
+
+        if not full_name or not username or not role:
+            flash("Please fill in all required fields.")
+            return render_template("user_form.html", mode="edit", form_data=request.form, user_id=user_id)
+
+        if role not in ("Admin", "Faculty", "Student"):
+            flash("Please select a valid role.")
+            return render_template("user_form.html", mode="edit", form_data=request.form, user_id=user_id)
+
+        if password and len(password) < 6:
+            flash("Password must be at least 6 characters.")
+            return render_template("user_form.html", mode="edit", form_data=request.form, user_id=user_id)
+
+        if username_exists_for_other(username, user_id):
+            flash("That username is already taken.")
+            return render_template("user_form.html", mode="edit", form_data=request.form, user_id=user_id)
+
+        # NOTE: username itself is not changed here — see the note in the
+        # message this code was first given in.
+                # Username can now be changed here — already validated above via
+        # username_exists_for_other().
+        update_user(user_id, username, full_name, role, email, password if password else None)
+        flash(f"User '{username}' updated.")
+        return redirect(url_for("dashboard"))
+
+    return render_template("user_form.html", mode="edit", form_data=existing, user_id=user_id)
+
+
+# ---------------------------------------------------------------------------
+# /users/delete/<id> — Admin removes a user
+# ---------------------------------------------------------------------------
+@app.route("/users/delete/<int:user_id>", methods=["POST"])
+@admin_required
+def delete_user_route(user_id):
+    if user_id == session["user"]["user_id"]:
+        flash("You can't delete your own account while logged in.")
+        return redirect(url_for("dashboard"))
+
+    delete_user(user_id)
+    flash("User deleted.")
+    return redirect(url_for("dashboard"))
 
 
 if __name__ == "__main__":
