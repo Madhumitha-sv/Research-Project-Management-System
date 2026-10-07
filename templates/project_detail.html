@@ -39,7 +39,12 @@
         <tbody>
             {% for m in members %}
             <tr>
-                <td>{{ m.full_name }}</td>
+                <td>
+                    <div class="cell-user">
+                        <span class="mini-avatar">{{ m.full_name[0] }}</span>
+                        <span class="u-name">{{ m.full_name }}</span>
+                    </div>
+                </td>
                 <td><span class="role-badge role-{{ m.role|lower|replace(' ', '-') }}">{{ m.role }}</span></td>
             </tr>
             {% else %}
