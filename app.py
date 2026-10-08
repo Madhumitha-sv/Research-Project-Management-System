@@ -93,49 +93,6 @@ def index():
         return redirect(url_for("dashboard"))
     return redirect(url_for("login"))
 
-@app.route('/team')
-@admin_required
-def team():
-    members = get_all_users()
-    return render_template('team.html', members=members)
-
-
-@app.route('/settings', methods=['GET', 'POST'])
-@login_required
-def settings():
-    user_id = session['user']['user_id']
-
-    if request.method == 'POST':
-        full_name = request.form.get('full_name', '').strip()
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '')
-        confirm_password = request.form.get('confirm_password', '')
-
-        if not full_name:
-            flash('Full name is required.')
-            return redirect(url_for('settings'))
-
-        if password:
-            if password != confirm_password:
-                flash('Passwords do not match.')
-                return redirect(url_for('settings'))
-            if len(password) < 6:
-                flash('Password must be at least 6 characters.')
-                return redirect(url_for('settings'))
-
-        update_user(user_id, full_name, session['user']['role'], email, password if password else None)
-
-        # Keep the session in sync so the navbar reflects the change immediately
-        session['user']['full_name'] = full_name
-        session['user']['email'] = email
-        session.modified = True
-
-        flash('Settings updated.')
-        return redirect(url_for('settings'))
-
-    current = get_user_by_id(user_id)
-    return render_template('settings.html', current=current)
-
 # ---------------------------------------------------------------------------
 # /login — shows the form (GET) and handles submission (POST)
 # ---------------------------------------------------------------------------
@@ -590,6 +547,101 @@ def delete_user_route(user_id):
     flash("User deleted.")
     return redirect(url_for("dashboard"))
 
+import hashlib
+
+# --- avatar colors (skip if you already added this earlier) ---
+AVATAR_PALETTE = [
+    "#F97066", "#F79009", "#EAAA08", "#4CA30D",
+    "#0E9384", "#155EEF", "#7A5AF8", "#DD2590",
+]
+
+def avatar_color(user_id):
+    idx = int(hashlib.md5(str(user_id).encode()).hexdigest(), 16) % len(AVATAR_PALETTE)
+    return AVATAR_PALETTE[idx]
+
+app.jinja_env.filters['avatar_color'] = avatar_color
+
+
+# --- Team: Admin sees everyone; Faculty/Student see people on shared projects ---
+@app.route('/team')
+@login_required
+def team():
+    user = session['user']
+
+    if user['role'] == 'Admin':
+        return render_template('team.html', members=get_all_users())
+
+    uid = user['user_id']
+    if user['role'] == 'Faculty':
+        project_list = (
+            Project.query
+            .filter(db.or_(Project.owner_id == uid, Project.members.any(User.user_id == uid)))
+            .all()
+        )
+    else:  # Student
+        project_list = Project.query.filter(Project.members.any(User.user_id == uid)).all()
+
+    people = {}
+    for p in project_list:
+        for person in [p.owner] + list(p.members):
+            if person.user_id == uid:
+                continue
+            entry = people.setdefault(person.user_id, {'user': person, 'projects': []})
+            if p not in entry['projects']:
+                entry['projects'].append(p)
+
+    teammates = sorted(people.values(), key=lambda e: e['user'].full_name)
+    return render_template('team_directory.html', teammates=teammates)
+
+
+# --- Settings: every user edits their own account ---
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    me = User.query.get(session['user']['user_id'])
+    if me is None:
+        session.pop('user', None)
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        if not full_name:
+            flash('Full name is required.')
+            return redirect(url_for('settings'))
+
+        if password:
+            if password != confirm_password:
+                flash('Passwords do not match.')
+                return redirect(url_for('settings'))
+            if len(password) < 6:
+                flash('Password must be at least 6 characters.')
+                return redirect(url_for('settings'))
+            me.password_hash = hash_password(password)
+
+        me.full_name = full_name
+        me.email = email
+        db.session.commit()
+
+        # Keep the navbar in sync with the change
+        session['user']['full_name'] = full_name
+        session['user']['email'] = email
+        session.modified = True
+
+        flash('Settings updated.')
+        return redirect(url_for('settings'))
+
+    current = {
+        'user_id': me.user_id,
+        'username': me.username,
+        'full_name': me.full_name,
+        'role': me.role,
+        'email': me.email,
+    }
+    return render_template('settings.html', current=current)
 
 if __name__ == "__main__":
     app.run(debug=True)

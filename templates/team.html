@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block page_title %}Team{% endblock %}
+{% block content %}
+
+{% set role = session['user']['role']|lower %}
+
+<div class="view-tabs">
+    <button type="button" class="view-tab active">Grid</button>
+</div>
+
+{# ======================= ADMIN: all users (your original) ======================= #}
+{% if role == 'admin' %}
+
+<div class="panel">
+    <div class="panel-header">
+        <h2>All Users</h2>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span class="count">{{ members|length }} total</span>
+            <a href="{{ url_for('add_user_route') }}" class="btn-primary">+ Add User</a>
+        </div>
+    </div>
+
+    {% if members %}
+    <table class="data-table grid-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in members %}
+            <tr class="role-{{ m.role|lower }}">
+                <td>
+                    <div class="grid-person">
+                        <span class="grid-avatar" style="background:{{ m.user_id|avatar_color }}">{{ m.full_name[0] }}</span>
+                        <span>{{ m.full_name }}</span>
+                    </div>
+                </td>
+                <td class="mono">{{ m.username }}</td>
+                <td><span class="pill pill-{{ m.role|lower }}">{{ m.role }}</span></td>
+                <td>{{ m.email or '—' }}</td>
+                <td>
+                    <div class="row-actions">
+                        <a href="{{ url_for('edit_user_route', user_id=m.user_id) }}" class="btn-ghost-sm">Edit</a>
+                        {% if m.user_id != session['user']['user_id'] %}
+                        <form method="POST" action="{{ url_for('delete_user_route', user_id=m.user_id) }}"
+                              onsubmit="return confirm('Delete {{ m.full_name }}? This cannot be undone.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-ghost-sm danger">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <span class="stamp">◎</span>
+        <h3>No users yet</h3>
+        <p>Add your first user to get started.</p>
+    </div>
+    {% endif %}
+</div>
+
+{# =================== FACULTY + STUDENT: read-only "My Team" =================== #}
+{# `members` here = only people who share a project with the viewer.
+   Each member needs: user_id, full_name, username, role, email, shared_projects
+   (a list of dicts with a `title`). #}
+{% else %}
+
+<div class="panel">
+    <div class="panel-header">
+        <h2>My Team</h2>
+        <div class="panel-header-actions">
+            {% if role == 'faculty' %}
+            <select class="toolbar-select" id="roleFilter" aria-label="Filter by role">
+                <option value="all">Everyone</option>
+                <option value="student">Students</option>
+                <option value="faculty">Faculty</option>
+                <option value="admin">Admins</option>
+            </select>
+            {% endif %}
+            <span class="count">{{ members|length }} {{ 'person' if members|length == 1 else 'people' }}</span>
+        </div>
+    </div>
+
+    {% if members %}
+    <div class="table-scroll">
+        <table class="data-table grid-table" id="teamTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    {% if role == 'faculty' %}<th>Username</th>{% endif %}
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Shared projects</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in members %}
+                <tr data-role="{{ m.role|lower }}">
+                    <td>
+                        <div class="grid-person">
+                            <span class="grid-avatar" style="background:{{ m.user_id|avatar_color }}">{{ m.full_name[0] }}</span>
+                            <span>{{ m.full_name }}</span>
+                        </div>
+                    </td>
+                    {% if role == 'faculty' %}
+                    <td class="mono">{{ m.username }}</td>
+                    {% endif %}
+                    <td>
+                        <span class="pill pill-{{ m.role|lower }}">
+                            {{ 'Supervisor' if (role == 'student' and m.role|lower == 'faculty') else m.role }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if m.email %}<a href="mailto:{{ m.email }}">{{ m.email }}</a>{% else %}<span class="muted-dash">—</span>{% endif %}
+                    </td>
+                    <td>
+                        <div class="project-tags">
+                            {% for p in m.shared_projects[:2] %}
+                            <span class="project-tag">{{ p.title }}</span>
+                            {% endfor %}
+                            {% if m.shared_projects|length > 2 %}
+                            <span class="project-tag more">+{{ m.shared_projects|length - 2 }}</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="stamp">◎</span>
+        <h3>No teammates yet</h3>
+        <p>{{ "People appear here once you add members to one of your projects." if role == 'faculty'
+              else "You'll see your teammates here once you're added to a project." }}</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if role == 'faculty' %}
+<script>
+    document.getElementById('roleFilter')?.addEventListener('change', function () {
+        var value = this.value;
+        document.querySelectorAll('#teamTable tbody tr').forEach(function (row) {
+            row.style.display = (value === 'all' || row.dataset.role === value) ? '' : 'none';
+        });
+    });
+</script>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

@@ -2,25 +2,54 @@
 {% block page_title %}Tasks{% endblock %}
 {% block content %}
 
+<div class="view-tabs">
+    <button type="button" class="view-tab active">Grid</button>
+    <button type="button" class="view-tab disabled">Board<span class="soon">Soon</span></button>
+    <button type="button" class="view-tab disabled">Calendar<span class="soon">Soon</span></button>
+</div>
+
 <div class="panel">
     <div class="panel-header">
-        <h2>{% if session['user']['role'] == 'Student' %}My Tasks{% else %}Tasks{% endif %}</h2>
+        <h2>{% if session['user']['role'] == 'Student' %}My Tasks{% else %}All Tasks{% endif %}</h2>
         <span class="count">{{ tasks|length }} total</span>
     </div>
-    <table class="data-table">
-        <thead><tr><th>Title</th><th>Project</th><th>Assigned To</th><th>Due</th><th>Status</th></tr></thead>
+
+    {% if tasks %}
+    <table class="data-table grid-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Project</th>
+                {% if session['user']['role'] != 'Student' %}<th>Assigned To</th>{% endif %}
+                <th>Due</th>
+                <th>Status</th>
+            </tr>
+        </thead>
         <tbody>
             {% for t in tasks %}
             <tr>
                 <td>{{ t.title }}</td>
-                <td><a href="{{ url_for('project_detail', project_id=t.project_id) }}">{{ t.project.title }}</a></td>
-                <td>{{ t.assignee.full_name if t.assignee else '—' }}</td>
+                <td>
+                    <a href="{{ url_for('project_detail', project_id=t.project.project_id) }}" class="grid-title-link">{{ t.project.title }}</a>
+                </td>
+                {% if session['user']['role'] != 'Student' %}
+                <td>
+                    {% if t.assignee %}
+                    <div class="grid-person">
+                        <span class="grid-avatar" style="background:{{ t.assignee.user_id|avatar_color }}">{{ t.assignee.full_name[0] }}</span>
+                        <span>{{ t.assignee.full_name }}</span>
+                    </div>
+                    {% else %}
+                    <span class="grid-empty-cell">—</span>
+                    {% endif %}
+                </td>
+                {% endif %}
                 <td>{{ t.due_date or '—' }}</td>
                 <td>
-                    {% if session['user']['role'] == 'Admin'
-                          or t.project.owner_id == session['user']['user_id']
-                          or t.assigned_to == session['user']['user_id'] %}
-                    <form method="POST" action="{{ url_for('update_task_status', task_id=t.task_id) }}" class="inline-form">
+                    {% set is_owner = session['user']['role'] == 'Admin' or t.project.owner_id == session['user']['user_id'] %}
+                    {% set is_assignee = t.assigned_to == session['user']['user_id'] %}
+                    {% if is_owner or is_assignee %}
+                    <form method="POST" action="{{ url_for('update_task_status', task_id=t.task_id) }}" class="inline-form" style="padding:0; border:none;">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <label for="task-status-{{ t.task_id }}" class="visually-hidden">Status for {{ t.title }}</label>
                         <select name="status" id="task-status-{{ t.task_id }}" onchange="this.form.submit()"
@@ -31,15 +60,20 @@
                         </select>
                     </form>
                     {% else %}
-                    <span class="status-badge status-{{ t.status|lower|replace(' ', '-') }}">{{ t.status }}</span>
+                    <span class="pill pill-status-{{ t.status|lower|replace(' ', '-') }}">{{ t.status }}</span>
                     {% endif %}
                 </td>
             </tr>
-            {% else %}
-            <tr><td colspan="5">No tasks yet.</td></tr>
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <div class="empty-state">
+        <span class="stamp">☑</span>
+        <h3>No tasks yet</h3>
+        <p>Tasks will appear here once they're created on a project.</p>
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

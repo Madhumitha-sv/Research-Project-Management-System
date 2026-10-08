@@ -1,50 +1,43 @@
 {% extends "base.html" %}
+{% block page_title %}{{ 'Edit User' if mode == 'edit' else 'Add User' }}{% endblock %}
 {% block content %}
-
-<div class="page-eyebrow">{{ 'New Account' if mode == 'add' else 'Edit Account' }}</div>
-<h1>{{ 'Add User' if mode == 'add' else 'Edit User' }}</h1>
-<p>{{ 'Create a new account directly.' if mode == 'add' else 'Update this user\'s details.' }}</p>
-<hr>
 
 <div class="panel">
     <div class="panel-header">
-        <span class="panel-title">User details</span>
+        <h2>{{ 'Edit User' if mode == 'edit' else 'Add a new user' }}</h2>
     </div>
-    <div class="form-body">
-        <form method="POST" action="{{ url_for('add_user_route') if mode == 'add' else url_for('edit_user_route', user_id=user_id) }}">
+    <form method="POST" class="stacked-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <label for="full_name">Full name</label>
-            <input type="text" id="full_name" name="full_name" value="{{ form_data.get('full_name', '') }}" required autofocus>
+        <label for="full_name">Full Name</label>
+        <input type="text" id="full_name" name="full_name" value="{{ form_data.get('full_name', '') }}" required autofocus>
 
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="{{ form_data.get('username', '') }}" {% if mode == 'edit' %}readonly{% else %}required{% endif %}>
-            {% if mode == 'edit' %}
-                <span class="field-note">Username can't be changed after creation.</span>
-            {% endif %}
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" value="{{ form_data.get('username', '') }}"
+               {{ 'readonly' if mode == 'edit' else 'required' }}>
+        {% if mode == 'edit' %}
+        <p class="field-hint">Username can't be changed after creation.</p>
+        {% endif %}
 
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{{ form_data.get('email', '') }}">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ form_data.get('email', '') }}">
 
-            <label for="role">Role</label>
-            <select id="role" name="role" required>
-                <option value="" disabled {% if not form_data.get('role') %}selected{% endif %}>Select a role</option>
-                <option value="Admin" {% if form_data.get('role') == 'Admin' %}selected{% endif %}>Admin</option>
-                <option value="Faculty" {% if form_data.get('role') == 'Faculty' %}selected{% endif %}>Faculty</option>
-                <option value="Student" {% if form_data.get('role') == 'Student' %}selected{% endif %}>Student</option>
-            </select>
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+            <option value="" disabled {{ 'selected' if not form_data.get('role') else '' }}>Select a role…</option>
+            {% for r in ['Admin', 'Faculty', 'Student'] %}
+            <option value="{{ r }}" {{ 'selected' if form_data.get('role') == r else '' }}>{{ r }}</option>
+            {% endfor %}
+        </select>
 
-            <label for="password">{{ 'Password' if mode == 'add' else 'New password' }}</label>
-            <input type="password" id="password" name="password" {% if mode == 'add' %}required{% endif %}>
-            {% if mode == 'edit' %}
-                <span class="field-note">Leave blank to keep the current password.</span>
-            {% endif %}
+        <label for="password">{{ 'New Password (leave blank to keep current)' if mode == 'edit' else 'Password' }}</label>
+        <input type="password" id="password" name="password" {{ '' if mode == 'edit' else 'required' }}>
 
-            <div class="form-actions">
-                <a href="{{ url_for('dashboard') }}" class="btn-ghost">Cancel</a>
-                <button type="submit" class="btn-primary">{{ 'Create user' if mode == 'add' else 'Save changes' }}</button>
-            </div>
-        </form>
-    </div>
+        <div class="form-actions" style="display:flex; gap:10px; margin-top:8px;">
+            <a href="{{ url_for('team') }}" class="btn-ghost">Cancel</a>
+            <button type="submit" class="btn-primary">{{ 'Save Changes' if mode == 'edit' else 'Create User' }}</button>
+        </div>
+    </form>
 </div>
 
 {% endblock %}

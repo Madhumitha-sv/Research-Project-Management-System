@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
+/* ==========================================================================
+   1. Tokens
+   ========================================================================== */
 :root {
     --bg: #FFFFFF;
     --bg-soft: #F6F6F3;
@@ -15,16 +18,21 @@
     --primary-dark: #232F7A;
     --primary-soft: #E9EBF7;
 
+    /* Kept for easy re-coloring later; status/role UI is monochrome for now */
     --moss: #4C7A5B;
     --moss-soft: #E7F0EA;
     --amber: #C98A2E;
     --amber-soft: #F8EEDD;
+
     --crimson: #B54B4B;
     --crimson-soft: #F7E9E9;
 
     --shadow-card: 0 1px 2px rgba(20, 23, 31, 0.05), 0 2px 10px rgba(20, 23, 31, 0.04);
 }
 
+/* ==========================================================================
+   2. Base
+   ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -34,7 +42,27 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Catalog rail (top nav) ---------- */
+hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 22px 0 28px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ==========================================================================
+   3. Top navigation rail
+   ========================================================================== */
 .catalog-rail {
     background: var(--rail);
     padding: 0 24px;
@@ -89,6 +117,7 @@ body {
     align-items: flex-end;
     gap: 3px;
     flex: 1;
+    min-width: 0;
 }
 
 .rail-tab {
@@ -103,6 +132,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
 }
 
 .rail-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
@@ -135,6 +165,8 @@ body {
     align-items: center;
     gap: 10px;
     padding: 10px 0 10px 16px;
+    margin-left: auto;      
+    flex-shrink: 0;
 }
 
 .rail-user .u-name {
@@ -172,11 +204,145 @@ body {
     font-weight: 500;
     border: 1px solid rgba(255, 255, 255, 0.12);
     transition: all 0.15s ease;
+    white-space: nowrap;
 }
 
 .logout-btn:hover { background: var(--crimson); border-color: var(--crimson); color: #fff; }
 
-/* ---------- Container ---------- */
+/* ---------- Notification bell ---------- */
+.notif-bell { position: relative; }
+
+.bell-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px;
+    position: relative;
+    line-height: 1;
+}
+
+.bell-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: var(--crimson);
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 700;
+    min-width: 15px;
+    height: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    border: 1.5px solid var(--rail);
+}
+
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 330px;
+    max-width: 90vw;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(20, 23, 31, 0.18);
+    overflow: hidden;
+    z-index: 50;
+}
+
+.notif-dropdown.open { display: block; }
+
+.notif-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.notif-dropdown-header span {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+}
+
+.notif-mark-all {
+    background: none;
+    border: none;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.notif-mark-all:hover { text-decoration: underline; }
+
+.notif-list { max-height: 360px; overflow-y: auto; }
+.notif-item-form { margin: 0; }
+
+.notif-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border-soft);
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+}
+
+.notif-item:hover { background: var(--bg-soft); }
+.notif-item.unread { background: var(--primary-soft); }
+.notif-item.unread:hover { background: #E1E3F7; }
+
+.notif-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 11.5px;
+    flex-shrink: 0;
+}
+
+.notif-item.unread .notif-avatar { background: var(--bg); }
+
+.notif-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.notif-message { font-size: 12.5px; color: var(--ink); line-height: 1.4; }
+
+.notif-time {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.notif-empty {
+    padding: 28px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-faint);
+}
+
+/* ==========================================================================
+   4. Layout, alerts, page head
+   ========================================================================== */
 .container {
     max-width: 1080px;
     margin: 0 auto;
@@ -194,7 +360,6 @@ body {
     font-weight: 500;
 }
 
-/* ---------- Page head ---------- */
 .page-eyebrow {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
@@ -219,13 +384,9 @@ body {
     margin-bottom: 8px;
 }
 
-hr {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 22px 0 28px;
-}
-
-/* ---------- Metrics: dog-ear index-card style ---------- */
+/* ==========================================================================
+   5. Dashboard metric cards (dog-ear index card)
+   ========================================================================== */
 .metrics {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -255,11 +416,8 @@ hr {
     position: absolute;
     top: 0; left: 0; bottom: 0;
     width: 3px;
-    background: var(--accent, var(--primary));
+    background: var(--ink-faint);
 }
-
-.metric-card.acc-moss { --accent: var(--moss); }
-.metric-card.acc-amber { --accent: var(--amber); }
 
 .metric-value {
     display: block;
@@ -280,7 +438,9 @@ hr {
     letter-spacing: 0.03em;
 }
 
-/* ---------- Panels ---------- */
+/* ==========================================================================
+   6. Panels
+   ========================================================================== */
 .panel {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -293,19 +453,22 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     padding: 15px 20px;
     border-bottom: 1px solid var(--border);
     background: var(--bg-soft);
 }
 
-.panel-title {
+.panel-title,
+.panel-header h2 {
     font-family: 'Fraunces', serif;
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
 }
 
-.panel-header .count {
+.panel-header .count,
+.panel-subtitle {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     color: var(--ink-faint);
@@ -315,13 +478,24 @@ hr {
     border-radius: 20px;
 }
 
-/* ---------- Table: call-number spine rows ---------- */
+.panel-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.panel > .empty-state { padding: 56px 24px; }
+
+/* ==========================================================================
+   7. Tables
+   ========================================================================== */
 .data-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
     padding: 12px 20px;
     text-align: left;
     font-size: 13px;
@@ -345,38 +519,26 @@ hr {
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tbody tr:hover td { background: var(--bg-soft); }
 
-.data-table td a {
+/* Spine accent on the first cell of every row (monochrome) */
+.data-table tbody tr td:first-child::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--border);
+}
+
+/* Content links in table cells use the serif; action buttons keep Inter */
+.data-table td a:not(.btn-ghost-sm):not(.btn-icon):not(.btn-primary):not(.btn-secondary):not(.btn-ghost) {
     font-family: 'Fraunces', serif;
     color: var(--ink);
     font-weight: 600;
     text-decoration: none;
 }
 
-.data-table td a:hover {
+.data-table td a:not(.btn-ghost-sm):not(.btn-icon):not(.btn-primary):not(.btn-secondary):not(.btn-ghost):hover {
     text-decoration: underline;
 }
-
-/* Spine accent keyed to project status — same "call number" language as the
-   role spine on the user table, extended to project rows. */
-.data-table tbody tr.status-active td:first-child::before { background: var(--moss); }
-.data-table tbody tr.status-on-hold td:first-child::before { background: var(--amber); }
-.data-table tbody tr.status-completed td:first-child::before { background: var(--primary); }
-
-.data-table tbody tr.status-active td a:hover { color: #2E5A3E; }
-.data-table tbody tr.status-on-hold td a:hover { color: #916419; }
-.data-table tbody tr.status-completed td a:hover { color: var(--primary-dark); }
-
-.data-table tbody tr td:first-child::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--spine, var(--border));
-}
-
-.data-table tbody tr.role-admin td:first-child::before { background: var(--primary); }
-.data-table tbody tr.role-faculty td:first-child::before { background: var(--moss); }
-.data-table tbody tr.role-student td:first-child::before { background: var(--amber); }
 
 .data-table td.mono {
     font-family: 'IBM Plex Mono', monospace;
@@ -384,11 +546,17 @@ hr {
     font-size: 12px;
 }
 
-.cell-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.grid-title-link,
+.row-link {
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
 }
+
+.grid-title-link:hover,
+.row-link:hover { text-decoration: underline; }
+
+.cell-user { display: flex; align-items: center; gap: 10px; }
 
 .cell-user .mini-avatar {
     width: 28px; height: 28px;
@@ -405,549 +573,16 @@ hr {
 .cell-user .u-name { font-weight: 500; font-size: 13px; }
 .cell-user .u-email { font-size: 11.5px; color: var(--ink-faint); }
 
-.pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    border-radius: 3px;
-}
-
-.pill-admin { background: var(--primary-soft); color: var(--primary-dark); }
-.pill-faculty { background: var(--moss-soft); color: #2E5A3E; }
-.pill-student { background: var(--amber-soft); color: #916419; }
-
-/* ---------- Empty state ---------- */
-.empty-state {
-    text-align: center;
-    padding: 56px 24px;
-}
-
-.empty-state .stamp {
-    width: 54px; height: 54px;
-    margin: 0 auto 16px;
-    border: 2px dashed var(--border);
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    color: var(--ink-faint);
-}
-
-.empty-state h3 {
-    font-family: 'Fraunces', serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--ink);
-    margin-bottom: 6px;
-}
-
-.empty-state p {
-    font-size: 13px;
-    color: var(--ink-soft);
-    max-width: 340px;
-    margin: 0 auto;
-}
-
-/* ---------- Login ---------- */
-.auth-shell {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: var(--bg);
-}
-
-.auth-visual {
-    background: var(--rail);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 44px;
-    overflow: hidden;
-}
-
-.auth-visual .v-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #fff;
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 15px;
-    z-index: 2;
-}
-
-.auth-visual .v-brand .mark {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    background: var(--primary);
-    display: grid; place-items: center;
-    font-weight: 700; font-size: 13px;
-}
-
-.auth-visual .v-copy { z-index: 2; max-width: 380px; }
-
-.auth-visual .v-copy h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 27px;
-    font-weight: 600;
-    color: #fff;
-    line-height: 1.35;
-    margin-bottom: 10px;
-}
-
-.auth-visual .v-copy p {
-    font-size: 13.5px;
-    color: #9BA0B4;
-    line-height: 1.6;
-}
-
-.auth-visual .index-lines {
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(to bottom, transparent, transparent 33px, rgba(255,255,255,0.045) 33px, rgba(255,255,255,0.045) 34px);
-    opacity: 0.6;
-}
-
-/* ---------- Process diagram (fills the empty middle) ---------- */
-.v-diagram {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    z-index: 2;
-    padding: 10px 0 10px 8px;
-}
-
-.v-diagram svg { width: 100%; max-width: 300px; height: auto; }
-
-.stage-node circle.ring {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.14);
-    stroke-width: 1;
-}
-
-.stage-node circle.core {
-    stroke: #1B1F2B;
-    stroke-width: 3;
-}
-
-.stage-node text.num {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    font-weight: 600;
-    fill: #1B1F2B;
-    text-anchor: middle;
-    dominant-baseline: central;
-}
-
-.stage-node text.label {
-    font-family: 'Fraunces', serif;
-    font-size: 15px;
-    font-weight: 600;
-    fill: #EDEEF3;
-}
-
-.stage-node text.sub {
-    font-family: 'Inter', sans-serif;
-    font-size: 10.5px;
-    fill: #7C82A0;
-}
-
-.diagram-path {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.18);
-    stroke-width: 1.5;
-    stroke-dasharray: 3 5;
-}
-
-.auth-form-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-}
-
-.login-box { width: 100%; max-width: 380px; }
-
-.login-box .form-eyebrow {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-}
-
-.login-box h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 42px;
-    margin: 8px 0;
-}
-
-.login-box h2 {
-    font-size: 18px;
-    color: var(--ink-soft);
-    font-weight: 400;
-    margin-bottom: 30px;
-}
-
-.login-box form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.login-box label {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
-}
-
-.login-box input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 14px;
-    background: #fff;
-    outline: none;
-}
-
-.login-box input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(47,62,158,.15);
-}
-
-.login-box button {
-    width: 100%;
-    padding: 13px;
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.login-box button:hover {
-    background: var(--primary-dark);
-}
-
-.demo-creds {
-    margin-top: 24px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-}
-
-.cred-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-}
-
-.cred-role {
-    font-weight: 600;
-}
-
-.login-box select {
-    width: 100%;
-    padding: 11px 13px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238A90A0' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 13px center;
-}
-
-.login-box select:invalid { color: var(--ink-faint); }
-.login-box select option { color: var(--ink); }
-
-.login-box select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-soft);
-}
-
-.auth-switch {
-    margin-top: 18px;
-    font-size: 13px;
-    color: var(--ink-soft);
-    text-align: center;
-}
-
-.auth-switch a {
-    color: var(--primary);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.auth-switch a:hover { text-decoration: underline; }
-
-/* ---------- Panel header, plain <h2> variant ---------- */
-.panel-header h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
-}
-
-/* ---------- Stacked form (new_project, new_task) ---------- */
-.stacked-form {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 22px 20px 24px;
-    max-width: 480px;
-}
-
-.stacked-form label {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--ink);
-    margin: 14px 0 6px;
-}
-
-.stacked-form label:first-of-type {
-    margin-top: 0;
-}
-
-.stacked-form input,
-.stacked-form textarea,
-.stacked-form select {
-    width: 100%;
-    padding: 11px 13px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.stacked-form textarea {
-    resize: vertical;
-    line-height: 1.5;
-}
-
-.stacked-form input:focus,
-.stacked-form textarea:focus,
-.stacked-form select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-soft);
-}
-
-.stacked-form select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238A90A0' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 13px center;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.field-hint {
-    font-size: 12px;
-    color: var(--ink-faint);
-    margin-top: 4px;
-}
-
-/* ---------- Buttons ---------- */
-.btn-primary,
-.btn-secondary,
-.btn-ghost {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 11px 20px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-    transition: background 0.15s ease, border-color 0.15s ease;
-    margin-top: 18px;
-    align-self: flex-start;
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-}
-
-.btn-secondary {
-    background: var(--primary-soft);
-    color: var(--primary-dark);
-}
-
-.btn-secondary:hover {
-    background: #DEE1F5;
-}
-
-.btn-ghost {
-    background: transparent;
-    color: var(--ink-soft);
-    border: 1px solid var(--border);
-}
-
-.btn-ghost:hover {
-    background: var(--bg-soft);
-}
-
-/* ---------- Panel header actions ---------- */
-.panel-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* ---------- Buttons ---------- */
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--primary);
-    color: #fff;
-    text-decoration: none;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-.btn-primary:hover { background: var(--primary-dark); }
-
-.btn-primary.btn-sm {
-    padding: 6px 12px;
-    font-size: 12px;
-}
-
-.btn-ghost {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg);
-    color: var(--ink-soft);
-    text-decoration: none;
-    border: 1px solid var(--border);
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.15s ease;
-}
-
-.btn-ghost:hover { background: var(--bg-soft); color: var(--ink); }
-
-/* ---------- Row actions (edit/delete in table) ---------- */
-.row-actions {
-    display: flex;
-    gap: 6px;
-}
-
-.inline-form { display: inline; }
-
-.btn-icon {
-    display: inline-flex;
-    align-items: center;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--ink-soft);
-    text-decoration: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 11.5px;
-    font-weight: 500;
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.btn-icon:hover { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-dark); }
-
-.btn-icon-danger:hover { background: var(--crimson-soft); border-color: var(--crimson); color: var(--crimson); }
-
-/* ---------- User form ---------- */
-.form-body {
-    padding: 20px;
-}
-
-.form-body label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink);
-    margin: 14px 0 6px;
-}
-
-.form-body label:first-child { margin-top: 0; }
-
-.form-body input,
-.form-body select {
-    width: 100%;
-    max-width: 420px;
-    padding: 10px 13px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-}
-
-.form-body input[readonly] {
-    background: var(--bg-soft);
-    color: var(--ink-faint);
-}
-
-.form-body input:focus,
-.form-body select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-soft);
-}
-
-.field-note {
-    display: block;
-    font-size: 11.5px;
-    color: var(--ink-faint);
-    margin-top: 4px;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 24px;
-}
+.muted-dash,
+.grid-empty-cell { color: var(--ink-faint); font-size: 13px; }
+
+.row-actions { display: flex; gap: 8px; align-items: center; }
+.row-actions form { margin: 0; }
 
 /* ==========================================================================
-   Compatibility layer — status/role badges, status select, and layout bits
-   used by projects.html / project_detail.html that aren't covered above.
-   Reuses the existing token set (moss / amber / primary) and pill shape.
+   8. Badges, pills, chips (monochrome)
    ========================================================================== */
-
+.pill,
 .status-badge,
 .role-badge {
     display: inline-flex;
@@ -958,35 +593,75 @@ hr {
     font-weight: 600;
     letter-spacing: 0.02em;
     border-radius: 3px;
+    background: var(--bg-soft);
+    color: var(--ink);
+    border: 1px solid var(--border);
 }
 
+/* Role + project/task status pills all share the neutral look */
+.pill-admin, .pill-faculty, .pill-student,
+.pill-status-active, .pill-status-completed, .pill-status-on-hold,
+.pill-status-pending, .pill-status-in-progress,
+.role-admin, .role-faculty, .role-student {
+    background: var(--bg-soft);
+    color: var(--ink);
+    border: 1px solid var(--border);
+}
+
+/* Status dot: shade carries the meaning instead of color */
 .status-badge::before {
     content: "";
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: currentColor;
+    background: var(--ink-faint);
 }
 
-.status-active { background: var(--moss-soft); color: #2E5A3E; }
-.status-completed { background: var(--primary-soft); color: var(--primary-dark); }
-.status-on-hold { background: var(--amber-soft); color: #916419; }
-.status-pending { background: var(--amber-soft); color: #916419; }
-.status-in-progress { background: var(--primary-soft); color: var(--primary-dark); }
+.status-badge.status-active::before,
+.status-badge.status-in-progress::before { background: var(--ink); }
 
-/* Team-member role badges — same palette as the .pill-* set used elsewhere */
-.role-admin { background: var(--primary-soft); color: var(--primary-dark); }
-.role-faculty { background: var(--moss-soft); color: #2E5A3E; }
-.role-student { background: var(--amber-soft); color: #916419; }
+.status-badge.status-completed::before {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--ink-faint);
+}
 
-/* Inline colored status dropdown (task status change) */
+/* Project status chips (Projects workspace) */
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--bg-soft);
+    color: var(--ink);
+    border: 1px solid var(--border);
+}
+
+.chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    flex-shrink: 0;
+}
+
+.st-active .chip-dot { background: var(--ink); }
+.st-hold .chip-dot { background: var(--ink-faint); }
+.st-done .chip-dot { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink-faint); }
+
+/* Inline status dropdown (task / project status change) */
 .status-select {
     font-family: 'Inter', sans-serif;
     font-size: 11.5px;
     font-weight: 600;
     padding: 5px 26px 5px 10px;
     border-radius: 3px;
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
+    background-color: var(--bg-soft);
+    color: var(--ink);
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
@@ -996,30 +671,263 @@ hr {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238A90A0' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
 }
 
-.status-select.status-active { background-color: var(--moss-soft); color: #2E5A3E; }
-.status-select.status-completed { background-color: var(--primary-soft); color: var(--primary-dark); }
-.status-select.status-on-hold,
-.status-select.status-pending { background-color: var(--amber-soft); color: #916419; }
-.status-select.status-in-progress { background-color: var(--primary-soft); color: var(--primary-dark); }
-
-/* Screen-reader-only label (task status <select> on project_detail.html) */
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+.status-select:focus {
+    outline: none;
+    border-color: var(--ink-faint);
+    box-shadow: 0 0 0 3px var(--border-soft);
 }
 
-/* Project detail: description + meta row */
+/* ==========================================================================
+   9. Avatars
+   ========================================================================== */
+.grid-person {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink);
+}
+
+/* Colored inline by the avatar_color filter */
+.grid-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 11px;
+    flex-shrink: 0;
+    border: 2px solid var(--bg);
+}
+
+.stack-av {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    display: inline-grid;
+    place-items: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 10.5px;
+    flex-shrink: 0;
+}
+
+.avatar-stack { display: flex; align-items: center; }
+
+.avatar-stack .stack-av { margin-left: -7px; border: 2px solid var(--bg); }
+.avatar-stack .stack-av:first-child { margin-left: 0; }
+.grid-avatar.stacked { margin-left: -8px; }
+.grid-avatar.stacked:first-child { margin-left: 0; }
+
+.stack-more,
+.grid-avatar.stacked.avatar-more {
+    background: var(--bg-soft);
+    color: var(--ink-faint);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9.5px;
+}
+
+.owner-cell { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+/* ==========================================================================
+   10. Buttons
+   ========================================================================== */
+.btn-primary,
+.btn-secondary,
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-primary.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+.btn-secondary { background: var(--primary-soft); color: var(--primary-dark); }
+.btn-secondary:hover { background: #DEE1F5; }
+
+.btn-ghost {
+    background: var(--bg);
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+    font-weight: 500;
+}
+.btn-ghost:hover { background: var(--bg-soft); color: var(--ink); }
+
+/* Inside stacked forms the submit sits below the fields */
+.stacked-form > .btn-primary,
+.stacked-form > .btn-secondary,
+.stacked-form > .btn-ghost {
+    margin-top: 18px;
+    align-self: flex-start;
+}
+
+/* Small row-level buttons (Edit / Delete) */
+.btn-ghost-sm,
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-ghost-sm:hover,
+.btn-icon:hover { background: var(--bg-soft); color: var(--ink); text-decoration: none; }
+
+.btn-ghost-sm.danger,
+.btn-icon-danger { color: var(--crimson); border-color: rgba(181, 75, 75, 0.3); }
+
+.btn-ghost-sm.danger:hover,
+.btn-icon-danger:hover { background: var(--crimson-soft); border-color: var(--crimson); color: var(--crimson); }
+
+/* ==========================================================================
+   11. Forms
+   ========================================================================== */
+.stacked-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 22px 20px 24px;
+    max-width: 480px;
+}
+
+.stacked-form label,
+.form-body label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 14px 0 6px;
+}
+
+.stacked-form label:first-of-type,
+.form-body label:first-child { margin-top: 0; }
+
+.stacked-form input,
+.stacked-form textarea,
+.stacked-form select,
+.form-body input,
+.form-body select {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-body input,
+.form-body select { max-width: 420px; }
+
+.stacked-form textarea { resize: vertical; line-height: 1.5; }
+
+.stacked-form input[readonly],
+.form-body input[readonly] { background: var(--bg-soft); color: var(--ink-faint); }
+
+.stacked-form input:focus,
+.stacked-form textarea:focus,
+.stacked-form select:focus,
+.form-body input:focus,
+.form-body select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.stacked-form select,
+.login-box select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238A90A0' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+}
+
+.form-body { padding: 20px; }
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-actions { display: flex; gap: 10px; margin-top: 24px; }
+
+.field-hint,
+.field-note {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-top: 4px;
+}
+
+/* Inline forms: row-level (inside a table cell) and panel-level */
+.inline-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-form select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+}
+
+.inline-form label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+}
+
+.panel > form.inline-form {
+    display: flex;
+    padding: 0 20px 20px;
+    margin-top: 14px;
+}
+
+.inline-form .status-select { padding: 5px 26px 5px 10px; font-size: 11.5px; }
+
+/* ==========================================================================
+   12. Project detail
+   ========================================================================== */
 .project-detail-desc {
     padding: 16px 20px 0;
     color: var(--ink-soft);
     font-size: 13.5px;
+    line-height: 1.6;
     max-width: 68ch;
 }
 
@@ -1034,131 +942,9 @@ hr {
     border-top: 1px solid var(--border-soft);
 }
 
-/* "N total" label next to a panel title — alias for .panel-header .count
-   so templates can use either class name */
-.panel-subtitle {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--ink-faint);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 3px 9px;
-    border-radius: 20px;
-}
-
-/* .inline-form defaults to display:inline for row-action forms nested in a
-   <td> (edit/delete buttons). The status-update and add-member forms sit
-   directly inside a .panel instead and need a real flex layout. */
-.panel > form.inline-form {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 20px 20px;
-    margin-top: 14px;
-}
-
-.panel > form.inline-form label {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    white-space: nowrap;
-}
-
-.panel > form.inline-form select {
-    width: auto;
-}
-
-/* Panels with no dedicated header row-action, direct-child spacing for
-   plain content (data-table already carries its own td/th padding) */
-.panel > .empty-state {
-    padding: 0;
-}
-
 /* ==========================================================================
-   Grid-style project management additions (view switcher, avatar stack)
+   13. Projects workspace (Grid / Gantt / Board / Calendar)
    ========================================================================== */
-
-.panel-header-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.view-switcher {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 3px;
-}
-
-.view-tab {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: none;
-    background: transparent;
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
-}
-
-.view-tab:hover:not(.disabled) {
-    background: var(--bg-soft);
-}
-
-.view-tab.active {
-    background: var(--primary-soft);
-    color: var(--primary-dark);
-}
-
-.view-tab.disabled {
-    color: var(--ink-faint);
-    cursor: default;
-}
-
-.view-tab .soon {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    background: var(--bg-soft);
-    border: 1px solid var(--border);
-    padding: 1px 4px;
-    border-radius: 3px;
-    color: var(--ink-faint);
-}
-
-.avatar-stack {
-    display: flex;
-    align-items: center;
-}
-
-.mini-avatar.stack {
-    margin-left: -8px;
-    border: 2px solid var(--bg);
-}
-
-.mini-avatar.stack:first-child {
-    margin-left: 0;
-}
-
-.mini-avatar.stack.overflow {
-    background: var(--bg-soft);
-    color: var(--ink-faint);
-    font-size: 10px;
-}
-
-/* ================= Projects workspace ================= */
-
 .view-toolbar {
     display: flex;
     justify-content: space-between;
@@ -1177,7 +963,9 @@ hr {
     flex-wrap: wrap;
 }
 
-/* ---- View picker dropdown ---- */
+.view-root { min-height: 220px; }
+
+/* View picker dropdown */
 .view-picker { position: relative; }
 
 .view-trigger {
@@ -1240,7 +1028,7 @@ hr {
 .view-option small { display: block; font-size: 11px; color: var(--ink-faint); margin-top: 1px; }
 .view-option.is-active small { color: var(--primary-dark); opacity: 0.75; }
 
-/* ---- Toolbar controls ---- */
+/* Toolbar controls */
 .toolbar-search {
     display: flex;
     align-items: center;
@@ -1274,63 +1062,37 @@ hr {
     cursor: pointer;
 }
 
-.toolbar-select:focus, .toolbar-search:focus-within {
+.toolbar-select:focus,
+.toolbar-search:focus-within {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
-.view-root { min-height: 220px; }
-
-/* ---- Shared bits ---- */
-.status-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11.5px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.chip-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-
-.st-active   { background: var(--moss-soft);    color: #2E5A3E; }
-.st-hold     { background: var(--amber-soft);   color: #916419; }
-.st-done     { background: var(--primary-soft); color: var(--primary-dark); }
-
-.stack-av {
-    width: 24px; height: 24px;
-    border-radius: 6px;
-    background: var(--primary-soft);
-    color: var(--primary-dark);
-    display: inline-grid;
-    place-items: center;
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 10.5px;
-    flex-shrink: 0;
-}
-
-.avatar-stack { display: flex; }
-.avatar-stack .stack-av { margin-left: -7px; border: 2px solid var(--bg); }
-.avatar-stack .stack-av:first-child { margin-left: 0; }
-.stack-more { background: var(--bg-soft); color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; }
-
-.muted-dash { color: var(--ink-faint); }
-.row-link { color: var(--ink); text-decoration: none; font-weight: 600; }
-.row-link:hover { color: var(--primary); text-decoration: underline; }
-
+/* Progress */
 .progress-cell { display: flex; align-items: center; gap: 8px; }
-.progress-track { flex: 1; min-width: 60px; height: 6px; background: var(--border-soft); border-radius: 20px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--primary); border-radius: 20px; transition: width 0.3s ease; }
+
+.progress-track {
+    flex: 1;
+    min-width: 60px;
+    height: 6px;
+    background: var(--border-soft);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--ink);
+    border-radius: 20px;
+    transition: width 0.3s ease;
+}
+
 .progress-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink); font-weight: 600; }
 .progress-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-faint); }
 
 /* ---- Grid view ---- */
 .table-scroll { overflow-x: auto; }
-
 .sheet-table { width: 100%; border-collapse: collapse; min-width: 900px; }
 
 .sheet-table th {
@@ -1357,22 +1119,23 @@ hr {
 .sheet-row td:first-child { position: relative; }
 
 .sheet-row td:first-child::before {
-    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
     background: var(--border);
 }
-.sheet-row.st-active td:first-child::before { background: var(--moss); }
-.sheet-row.st-hold   td:first-child::before { background: var(--amber); }
-.sheet-row.st-done   td:first-child::before { background: var(--primary); }
 
 .col-title { min-width: 190px; }
 .col-progress { min-width: 150px; }
 .cell-desc { color: var(--ink-soft); font-size: 12.5px; max-width: 260px; }
 .cell-date { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
-.owner-cell { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 
 /* ---- Gantt view ---- */
 .gantt-wrap { padding: 4px 0 14px; overflow-x: auto; }
-.gantt-head, .gantt-row { display: flex; align-items: center; min-width: 760px; }
+
+.gantt-head,
+.gantt-row { display: flex; align-items: center; min-width: 760px; }
 
 .gantt-head {
     padding: 8px 18px;
@@ -1387,40 +1150,39 @@ hr {
 .gantt-label-col { width: 210px; flex-shrink: 0; padding-right: 14px; font-size: 13px; }
 .gantt-head .gantt-label-col { font-size: 10.5px; }
 .gantt-track-col { flex: 1; position: relative; height: 26px; }
-
 .gantt-head .gantt-track-col { height: 16px; }
 
 .gantt-tick {
-    position: absolute; top: 0; bottom: 0;
+    position: absolute;
+    top: 0; bottom: 0;
     border-left: 1px dashed var(--border);
     padding-left: 5px;
 }
+
 .gantt-tick span { font-size: 9.5px; font-family: 'IBM Plex Mono', monospace; color: var(--ink-faint); }
 
-.gantt-body { position: relative; padding: 10px 18px; }
-
+.gantt-body { position: relative; padding: 10px 18px; min-width: 760px; }
 .gantt-row { padding: 5px 0; }
 
 .gantt-bar {
     position: absolute;
     height: 22px;
     border-radius: 5px;
-    background: var(--border-soft);
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     overflow: hidden;
     transition: filter 0.15s ease;
 }
-.gantt-bar:hover { filter: brightness(0.96); }
 
-.gantt-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; opacity: 0.85; }
-.gantt-bar.st-active .gantt-bar-fill { background: var(--moss); }
-.gantt-bar.st-hold   .gantt-bar-fill { background: var(--amber); }
-.gantt-bar.st-done   .gantt-bar-fill { background: var(--primary); }
+.gantt-bar:hover { filter: brightness(0.97); }
 
-.gantt-bar.st-active { background: var(--moss-soft); }
-.gantt-bar.st-hold   { background: var(--amber-soft); }
-.gantt-bar.st-done   { background: var(--primary-soft); }
+.gantt-bar-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: #C9CCD6;   /* light enough that the % label stays readable */
+}
 
 .gantt-bar-text {
     position: relative;
@@ -1432,6 +1194,8 @@ hr {
     padding-left: 7px;
 }
 
+/* Today marker: label column (210) + body padding (18) = 228px from the left;
+   track width = 100% - 246px. --p is a 0..1 fraction set inline by projects.html */
 .gantt-today {
     position: absolute;
     top: 0; bottom: 0;
@@ -1439,7 +1203,7 @@ hr {
     background: var(--crimson);
     opacity: 0.55;
     z-index: 3;
-    margin-left: 224px;
+    left: calc(228px + (100% - 246px) * var(--p, 0));
 }
 
 .gantt-note { padding: 10px 18px 0; font-size: 12px; color: var(--ink-faint); }
@@ -1461,6 +1225,8 @@ hr {
     padding: 10px 13px;
     font-size: 12px;
     font-weight: 600;
+    background: var(--bg);
+    color: var(--ink);
     border-bottom: 1px solid var(--border);
 }
 
@@ -1468,7 +1234,7 @@ hr {
     margin-left: auto;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10.5px;
-    background: rgba(255,255,255,0.65);
+    background: var(--bg-soft);
     padding: 1px 7px;
     border-radius: 20px;
 }
@@ -1487,9 +1253,6 @@ hr {
 }
 
 .board-card:hover { box-shadow: var(--shadow-card); transform: translateY(-1px); }
-.board-card.st-active { border-left-color: var(--moss); }
-.board-card.st-hold   { border-left-color: var(--amber); }
-.board-card.st-done   { border-left-color: var(--primary); }
 
 .bc-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
 .bc-desc { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 9px; line-height: 1.45; }
@@ -1500,7 +1263,6 @@ hr {
 
 /* ---- Calendar view ---- */
 .cal-wrap { padding: 16px 18px 20px; }
-
 .cal-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 
 .cal-nav {
@@ -1514,14 +1276,15 @@ hr {
     cursor: pointer;
     transition: all 0.15s ease;
 }
+
 .cal-nav:hover { border-color: var(--primary); color: var(--primary); }
 
 .cal-month { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; color: var(--ink); }
 .cal-hint { margin-left: auto; font-size: 11.5px; color: var(--ink-faint); }
 
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-
 .cal-dow { margin-bottom: 5px; }
+
 .cal-dow-cell {
     font-size: 10px;
     text-transform: uppercase;
@@ -1541,6 +1304,7 @@ hr {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .cal-blank { background: var(--bg-soft); border-style: dashed; }
@@ -1558,109 +1322,376 @@ hr {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    background: var(--bg-soft);
+    color: var(--ink);
+    border: 1px solid var(--border);
 }
 
-.cal-event.st-active { background: var(--moss-soft);    color: #2E5A3E; }
-.cal-event.st-hold   { background: var(--amber-soft);   color: #916419; }
-.cal-event.st-done   { background: var(--primary-soft); color: var(--primary-dark); }
+/* ==========================================================================
+   14. Simple view tabs (Tasks / Team pages)
+   ========================================================================== */
+.view-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
 
+.view-tab {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.view-tab.active { color: var(--primary-dark); background: var(--primary-soft); border-color: var(--primary-soft); }
+.view-tab.disabled { color: var(--ink-faint); cursor: default; background: var(--bg-soft); }
+
+.view-tab .soon {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--border-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--ink-faint);
+}
+
+/* ==========================================================================
+   15. Empty state
+   ========================================================================== */
+.empty-state { text-align: center; padding: 56px 24px; }
+
+.empty-state .stamp {
+    width: 54px; height: 54px;
+    margin: 0 auto 16px;
+    border: 2px dashed var(--border);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--ink-faint);
+}
+
+.empty-state h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+}
+
+.empty-state p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    max-width: 340px;
+    margin: 0 auto;
+}
+
+/* ==========================================================================
+   16. Login / register
+   ========================================================================== */
+.auth-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--bg);
+}
+
+.auth-visual {
+    background: var(--rail);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 44px;
+    overflow: hidden;
+}
+
+.auth-visual .v-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 15px;
+    z-index: 2;
+}
+
+.auth-visual .v-brand .mark {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--primary);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 13px;
+}
+
+.auth-visual .v-copy { z-index: 2; max-width: 380px; }
+
+.auth-visual .v-copy h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 27px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.35;
+    margin-bottom: 10px;
+}
+
+.auth-visual .v-copy p { font-size: 13.5px; color: #9BA0B4; line-height: 1.6; }
+
+.auth-visual .index-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(to bottom, transparent, transparent 33px, rgba(255,255,255,0.045) 33px, rgba(255,255,255,0.045) 34px);
+    opacity: 0.6;
+}
+
+.v-diagram {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+    padding: 10px 0 10px 8px;
+}
+
+.v-diagram svg { width: 100%; max-width: 300px; height: auto; }
+
+.stage-node circle.ring { fill: none; stroke: rgba(255, 255, 255, 0.14); stroke-width: 1; }
+.stage-node circle.core { stroke: #1B1F2B; stroke-width: 3; }
+
+.stage-node text.num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    fill: #1B1F2B;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.stage-node text.label { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; fill: #EDEEF3; }
+.stage-node text.sub { font-family: 'Inter', sans-serif; font-size: 10.5px; fill: #7C82A0; }
+
+.diagram-path { fill: none; stroke: rgba(255, 255, 255, 0.18); stroke-width: 1.5; stroke-dasharray: 3 5; }
+
+.auth-form-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.login-box { width: 100%; max-width: 380px; }
+
+.login-box .form-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.login-box h1 { font-family: 'Fraunces', serif; font-size: 42px; margin: 8px 0; }
+.login-box h2 { font-size: 18px; color: var(--ink-soft); font-weight: 400; margin-bottom: 30px; }
+
+.login-box form { display: flex; flex-direction: column; gap: 16px; }
+.login-box label { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+.login-box input,
+.login-box select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    background-color: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.login-box input:focus,
+.login-box select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(47, 62, 158, 0.15);
+}
+
+.login-box select:invalid { color: var(--ink-faint); }
+.login-box select option { color: var(--ink); }
+
+.login-box button {
+    width: 100%;
+    padding: 13px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.login-box button:hover { background: var(--primary-dark); }
+
+.demo-creds {
+    margin-top: 24px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.cred-row { display: flex; justify-content: space-between; padding: 6px 0; }
+.cred-role { font-weight: 600; }
+
+.auth-switch { margin-top: 18px; font-size: 13px; color: var(--ink-soft); text-align: center; }
+.auth-switch a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+
+/* ==========================================================================
+   17. Responsive
+   ========================================================================== */
 @media (max-width: 860px) {
+    .catalog-rail { padding: 0 12px; overflow-x: auto; width:100%; }
+    .rail-brand .name small { display: none; }
+    .rail-user > div:not(.notif-bell) { display: none; }
+
+    .container { padding: 24px 16px 48px; }
+
+    .metrics { grid-template-columns: 1fr; }
     .board-wrap { grid-template-columns: 1fr; }
     .cal-cell { min-height: 64px; }
     .toolbar-search input { width: 110px; }
+    .form-row { grid-template-columns: 1fr; }
+
+    .auth-shell { grid-template-columns: 1fr; }
+    .auth-visual { display: none; }
+    .login-box h1 { font-size: 34px; }
 }
 
-/* ============================================================
-   NEUTRALIZE STATUS & ROLE COLORS — grayscale only
-   (Overrides earlier colored accents on cards, rows, pills,
-   chips, gantt bars, board columns, and calendar events.)
-   ============================================================ */
+/* ==========================================================================
+   COLOR ACCENTS: paste at the very END of your stylesheet.
+   Keeps the neutral base; adds indigo for interaction, and moss / amber /
+   crimson only where color carries meaning (status, role, alerts).
+   ========================================================================== */
 
-/* ---- Dashboard metric cards ---- */
-.metric-card::before,
-.metric-card.acc-moss::before,
-.metric-card.acc-amber::before {
-    background: var(--ink-faint);
+/* ---- Navigation rail ---- */
+.catalog-rail { border-bottom: 2px solid var(--primary); }
+.rail-tab.active { box-shadow: inset 0 2px 0 var(--primary); }
+.rail-user { margin-left: auto; flex-shrink: 0; }
+
+/* ---- Page header ---- */
+.container > h1 { color: var(--primary-dark); }
+
+/* ---- Metric cards: left spine uses the brand color, dog-ear stays neutral ---- */
+.metric-card::before { background: var(--primary); }
+.metric-card:nth-child(2)::before { background: var(--moss); }
+.metric-card:nth-child(3)::before { background: var(--amber); }
+
+/* ---- Panels ---- */
+.panel-header { border-top: 2px solid var(--primary); }
+
+/* ---- Tables ---- */
+.data-table th { color: var(--ink-soft); }
+.data-table tbody tr:hover td { background: var(--primary-soft); }
+.data-table tbody tr:hover td:first-child::before,
+.sheet-row:hover td:first-child::before { background: var(--primary); }
+.sheet-row:hover td { background: var(--primary-soft); }
+.data-table td a:not(.btn-ghost-sm):not(.btn-icon):not(.btn-primary):not(.btn-secondary):not(.btn-ghost):hover {
+    color: var(--primary);
 }
 
-/* ---- User table role spine + pills ---- */
-.data-table tbody tr.role-admin td:first-child::before,
-.data-table tbody tr.role-faculty td:first-child::before,
-.data-table tbody tr.role-student td:first-child::before {
-    background: var(--border);
-}
+/* ---- Role badges ---- */
+.pill.pill-admin,   .role-badge.role-admin   { background: var(--primary-soft); color: var(--primary-dark); border-color: #D3D7EF; }
+.pill.pill-faculty, .role-badge.role-faculty { background: var(--moss-soft);    color: #34573F;            border-color: #CFE2D5; }
+.pill.pill-student, .role-badge.role-student { background: var(--amber-soft);   color: #8A5C14;            border-color: #EBD9B6; }
 
-.pill-admin, .pill-faculty, .pill-student {
-    background: var(--bg-soft);
+/* Safety net: if a <tr> carries a role class, never tint the row */
+tr.role-admin, tr.role-faculty, tr.role-student { background: none; color: inherit; border: 0; }
+
+/* ---- Status badges / chips ---- */
+.pill-status-active,
+.pill-status-in-progress { background: var(--primary-soft); color: var(--primary-dark); border-color: #D3D7EF; }
+.pill-status-completed   { background: var(--moss-soft);    color: #34573F;            border-color: #CFE2D5; }
+.pill-status-on-hold,
+.pill-status-pending     { background: var(--amber-soft);   color: #8A5C14;            border-color: #EBD9B6; }
+
+.status-badge.status-active::before,
+.status-badge.status-in-progress::before,
+.st-active .chip-dot { background: var(--primary); }
+
+.status-badge.status-completed::before,
+.st-done .chip-dot { background: var(--moss); box-shadow: none; }
+
+.st-hold .chip-dot { background: var(--amber); }
+
+/* ---- Progress ---- */
+.progress-fill { background: var(--primary); }
+.progress-num  { color: var(--primary-dark); }
+
+/* ---- Gantt ---- */
+.gantt-bar { background: var(--primary-soft); border-color: #D3D7EF; }
+.gantt-bar-fill { background: #AEB6E4; }
+.gantt-bar-text { color: var(--primary-dark); }
+
+/* ---- Board ---- */
+.board-card { border-left-color: var(--primary); }
+.board-card:hover { border-color: #C5CAEA; border-left-color: var(--primary); }
+.board-col:nth-child(1) .board-col-head { box-shadow: inset 0 2px 0 var(--ink-faint); }
+.board-col:nth-child(2) .board-col-head { box-shadow: inset 0 2px 0 var(--primary); }
+.board-col:nth-child(3) .board-col-head { box-shadow: inset 0 2px 0 var(--moss); }
+
+/* ---- Calendar ---- */
+.cal-event { background: var(--primary-soft); color: var(--primary-dark); border-color: #D3D7EF; }
+.cal-event:hover { background: #DEE1F5; }
+
+/* ---- Buttons: subtle lift on primary, indigo hover on ghost ---- */
+.btn-primary { box-shadow: 0 1px 2px rgba(35, 47, 122, 0.25); }
+.btn-ghost:hover,
+.btn-ghost-sm:hover,
+.btn-icon:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
+
+/* ---- Focus ring (keyboard visibility) ---- */
+a:focus-visible,
+button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---- Alerts: add a left stripe ---- */
+.alert { border-left: 3px solid var(--crimson); }
+
+/* ---- Notifications ---- */
+.notif-item.unread { box-shadow: inset 3px 0 0 var(--primary); }
+
+/* ---- Logout: neutral until hover, as before ---- */
+.logout-btn:hover { background: var(--crimson); border-color: var(--crimson); color: #fff; }
+
+/* Section headings inside the settings form */
+.form-section {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--ink);
-    border: 1px solid var(--border);
+    margin: 26px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-soft);
 }
 
-/* ---- Project status chips ---- */
-.status-chip.st-active,
-.status-chip.st-hold,
-.status-chip.st-done {
-    background: var(--bg-soft);
-    color: var(--ink);
-    border: 1px solid var(--border);
+/* Checkbox rows: box and label side by side */
+.stacked-form label.check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0 0;
+    font-weight: 500;
+    cursor: pointer;
 }
 
-.status-chip .chip-dot {
-    background: var(--ink-faint);
-}
-
-/* ---- Grid view row spine ---- */
-.sheet-row.st-active td:first-child::before,
-.sheet-row.st-hold td:first-child::before,
-.sheet-row.st-done td:first-child::before {
-    background: var(--border);
-}
-
-/* ---- Gantt bars ---- */
-.gantt-bar.st-active,
-.gantt-bar.st-hold,
-.gantt-bar.st-done {
-    background: var(--bg-soft);
-    border: 1px solid var(--border);
-}
-
-.gantt-bar.st-active .gantt-bar-fill,
-.gantt-bar.st-hold .gantt-bar-fill,
-.gantt-bar.st-done .gantt-bar-fill {
-    background: var(--ink-faint);
-    opacity: 1;
-}
-
-/* ---- Board view columns & cards ---- */
-.board-col-head.st-active,
-.board-col-head.st-hold,
-.board-col-head.st-done {
-    background: var(--bg);
-    color: var(--ink);
-    border-bottom: 1px solid var(--border);
-}
-
-.board-col-head .chip-dot {
-    background: var(--ink-faint);
-}
-
-.board-card.st-active,
-.board-card.st-hold,
-.board-card.st-done {
-    border-left-color: var(--border);
-}
-
-/* ---- Calendar events ---- */
-.cal-event.st-active,
-.cal-event.st-hold,
-.cal-event.st-done {
-    background: var(--bg-soft);
-    color: var(--ink);
-    border: 1px solid var(--border);
-}
-
-/* ---- Progress bar fill (kept neutral instead of primary blue) ---- */
-.progress-fill,
-.gantt-bar-fill {
-    background: var(--ink) !important;
+.stacked-form .check-row input {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    flex-shrink: 0;
+    accent-color: var(--primary);
 }

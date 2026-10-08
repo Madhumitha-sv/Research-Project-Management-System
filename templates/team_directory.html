@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-eyebrow">Workspace</div>
+<h1>Team</h1>
+<p>
+    {% if session['user']['role'] == 'Faculty' %}
+        Everyone working on your projects.
+    {% else %}
+        People you share projects with.
+    {% endif %}
+</p>
+<hr>
+
+<div class="panel">
+    <div class="panel-header">
+        <h2>{% if session['user']['role'] == 'Faculty' %}Project Team{% else %}My Teammates{% endif %}</h2>
+        <span class="count">{{ teammates|length }} total</span>
+    </div>
+
+    {% if teammates %}
+    <table class="data-table grid-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Shared projects</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in teammates %}
+            <tr>
+                <td>
+                    <div class="grid-person">
+                        <span class="grid-avatar" style="background:{{ t.user.user_id|avatar_color }}">{{ t.user.full_name[0] }}</span>
+                        <span>{{ t.user.full_name }}</span>
+                    </div>
+                </td>
+                <td><span class="pill pill-{{ t.user.role|lower }}">{{ t.user.role }}</span></td>
+                <td>{{ t.user.email or '—' }}</td>
+                <td>
+                    {% for p in t.projects %}
+                    <a href="{{ url_for('project_detail', project_id=p.project_id) }}">{{ p.title }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <span class="stamp">◎</span>
+        <h3>No teammates yet</h3>
+        <p>
+            {% if session['user']['role'] == 'Faculty' %}
+                Add members to one of your projects and they will show up here.
+            {% else %}
+                You haven't been added to any projects yet. Once you are, the people on them will show up here.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

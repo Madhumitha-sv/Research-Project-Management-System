@@ -13,17 +13,14 @@
             <span class="mark">I</span>
             <span class="name">Intellecta<small>Lab &amp; Project Tracker</small></span>
         </div>
+
         <div class="rail-tabs">
             <a href="{{ url_for('dashboard') }}" class="rail-tab {{ 'active' if request.endpoint == 'dashboard' else '' }}">Dashboard</a>
             <a href="{{ url_for('projects') }}" class="rail-tab {{ 'active' if request.endpoint in ['projects', 'project_detail', 'new_project'] else '' }}">Projects</a>
             <a href="{{ url_for('tasks') }}" class="rail-tab {{ 'active' if request.endpoint in ['tasks', 'new_task'] else '' }}">Tasks</a>
-            {% if session['user']['role'] == 'Admin' %}
             <a href="{{ url_for('team') }}" class="rail-tab {{ 'active' if request.endpoint in ['team', 'add_user_route', 'edit_user_route'] else '' }}">Team</a>
             <a href="{{ url_for('settings') }}" class="rail-tab {{ 'active' if request.endpoint == 'settings' else '' }}">Settings</a>
-            {% else %}
-            <a class="rail-tab disabled">Team<span class="soon">Soon</span></a>
-            <a class="rail-tab disabled">Settings<span class="soon">Soon</span></a>
-            {% endif %}
+        </div>
 
         <div class="rail-user">
             <div>

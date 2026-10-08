@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+
+{% set role = current.role|lower %}
+
+<div class="settings-stack">
+<div class="panel">
+    <div class="panel-header">
+        <h2>My Account</h2>
+        <span class="pill pill-{{ role }}">{{ current.role }}</span>
+    </div>
+    <form method="POST" action="{{ url_for('settings') }}" class="stacked-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label for="full_name">Full Name</label>
+        <input type="text" id="full_name" name="full_name" value="{{ current.full_name }}" required>
+
+        <label for="username">Username</label>
+        <input type="text" id="username" value="{{ current.username }}" readonly>
+        <p class="field-hint">Username can't be changed.</p>
+
+        <label for="email">Email</label>
+        {% if role == 'student' %}
+        {# No name attribute: students can't change their email. The server must ignore it too. #}
+        <input type="email" id="email" value="{{ current.email or '' }}" readonly>
+        <p class="field-hint">Your email is managed by your faculty or admin.</p>
+        {% else %}
+        <input type="email" id="email" name="email" value="{{ current.email or '' }}">
+        {% endif %}
+
+        <label for="role">Role</label>
+        <input type="text" id="role" value="{{ current.role }}" readonly>
+
+        <h3 class="form-section">Password</h3>
+
+        <label for="current_password">Current Password</label>
+        <input type="password" id="current_password" name="current_password" autocomplete="current-password">
+        <p class="field-hint">Only needed if you're setting a new password.</p>
+
+        <label for="password">New Password (leave blank to keep current)</label>
+        <input type="password" id="password" name="password" minlength="8" autocomplete="new-password">
+
+        <label for="confirm_password">Confirm New Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" minlength="8" autocomplete="new-password">
+
+        <h3 class="form-section">Notifications</h3>
+
+        <label class="check-row">
+            <input type="checkbox" name="notify_assigned" {{ 'checked' if current.notify_assigned }}>
+            When a task is assigned to me
+        </label>
+
+        {% if role != 'student' %}
+        <label class="check-row">
+            <input type="checkbox" name="notify_completed" {{ 'checked' if current.notify_completed }}>
+            When a task I created is completed
+        </label>
+        {% endif %}
+
+        <button type="submit" class="btn-primary">Save Changes</button>
+    </form>
+</div>
+</div>
+
+{% endblock %}
